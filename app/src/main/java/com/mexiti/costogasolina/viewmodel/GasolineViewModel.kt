@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class GasolineViewModel(private val gasolineDao: GasolineDao): ViewModel() {
+class GasolineViewModel (private val gasolineDao: GasolineDao) : ViewModel() {
     val transaction: StateFlow<List<GasolineTransaction>> = gasolineDao.getAllTransactions()
         .stateIn(
             scope = viewModelScope,
@@ -22,7 +22,7 @@ class GasolineViewModel(private val gasolineDao: GasolineDao): ViewModel() {
         tip: Double,
         date: String,
         kilometers: Double
-    ){
+    ) {
         viewModelScope.launch {
             val newTransaction = GasolineTransaction(
                 pricePerLiter = price,
@@ -32,6 +32,22 @@ class GasolineViewModel(private val gasolineDao: GasolineDao): ViewModel() {
                 kilometers = kilometers
             )
             gasolineDao.insertTransaction(newTransaction)
+        }
+    }
+
+    suspend fun getTransactionById(id: Int): GasolineTransaction? {
+        return gasolineDao.getTransactionById(id)
+    }
+
+    fun updateTransaction(transaction: GasolineTransaction) {
+        viewModelScope.launch {
+            gasolineDao.updateTransaction(transaction)
+        }
+    }
+
+    fun deleteTransaction(transaction: GasolineTransaction) {
+        viewModelScope.launch {
+            gasolineDao.deleteTransaction(transaction)
         }
     }
 }

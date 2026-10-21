@@ -14,11 +14,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -45,7 +48,6 @@ fun HomeView(
     viewModel: GasolineViewModel,
     modifier: Modifier = Modifier
 ) {
-    // Escuchar la lista de transacciones desde Room
     val transactions by viewModel.transaction.collectAsState()
 
     Scaffold(
@@ -75,7 +77,6 @@ fun HomeView(
         }
     ) { innerPadding ->
         if (transactions.isEmpty()) {
-            // Estado vacío cuando no existen datos grabados
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -89,7 +90,6 @@ fun HomeView(
                 )
             }
         } else {
-            // Lista de registros
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -98,7 +98,11 @@ fun HomeView(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(transactions) { item ->
-                    TransactionCard(transaction = item)
+                    TransactionCard(
+                        transaction = item,
+                        onEditClick = { id -> navController.navigate("EditView/$id") },
+                        onDeleteClick = { id -> navController.navigate("DeleteView/$id") }
+                    )
                 }
             }
         }
@@ -108,9 +112,10 @@ fun HomeView(
 @Composable
 fun TransactionCard(
     transaction: GasolineTransaction,
+    onEditClick: (Int) -> Unit,
+    onDeleteClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Cálculo total reutilizando el dominio
     val total = calcularMonto(
         precio = transaction.pricePerLiter,
         cantLitros = transaction.liters,
@@ -127,7 +132,6 @@ fun TransactionCard(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Encabezado: Fecha y Total destacado
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -148,7 +152,6 @@ fun TransactionCard(
 
             Spacer(modifier = Modifier.height(2.dp))
 
-            // Detalle: Precio por litro y Litros
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -163,7 +166,6 @@ fun TransactionCard(
                 )
             }
 
-            // Muestra propina y kilometraje solo si tienen valores registrados (> 0)
             if (transaction.tip > 0 || transaction.kilometers > 0) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -183,6 +185,26 @@ fun TransactionCard(
                             color = MaterialTheme.colorScheme.outline
                         )
                     }
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                IconButton(onClick = { onEditClick(transaction.id) }) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar Registro",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                IconButton(onClick = { onDeleteClick(transaction.id) }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Eliminar Registro",
+                        tint = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }

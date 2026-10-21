@@ -1,9 +1,11 @@
 package com.mexiti.costogasolina.room
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.mexiti.costogasolina.model.GasolineTransaction
 import kotlinx.coroutines.flow.Flow
 
@@ -15,4 +17,12 @@ interface GasolineDao {
     @Query("SELECT * FROM gasoline_transactions ORDER BY date DESC")
     fun getAllTransactions(): Flow<List<GasolineTransaction>>
 
+    @Query("SELECT * FROM gasoline_transactions WHERE id = :id")
+    suspend fun getTransactionById(id: Int): GasolineTransaction?
+
+    @Update
+    suspend fun updateTransaction(transaction: GasolineTransaction)
+
+    @Delete
+    suspend fun deleteTransaction(transaction: GasolineTransaction)
 }

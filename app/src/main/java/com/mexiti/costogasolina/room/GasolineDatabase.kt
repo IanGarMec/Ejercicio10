@@ -6,11 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.mexiti.costogasolina.model.GasolineTransaction
 
-@Database(entities = [GasolineTransaction::class], version = 1, exportSchema = false)
-abstract class GasolineDatabase: RoomDatabase() {
+@Database(entities = [GasolineTransaction::class], version = 1)
+abstract class GasolineDatabase: RoomDatabase(){
     abstract fun gasolineDao(): GasolineDao
 
-    companion object {
+            companion object {
         @Volatile
         private var INSTANCE: GasolineDatabase? = null
 
@@ -26,4 +26,7 @@ abstract class GasolineDatabase: RoomDatabase() {
             }
         }
     }
+
+
+
 }
